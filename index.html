@@ -1,0 +1,1002 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Kardex de canastillas</title>
+<meta name="theme-color" content="#1D5C78">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Semi+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#EDF0F2; --surface:#FFFFFF; --surface2:#F5F7F8; --ink:#17222B; --muted:#586773; --line:#D3DBE0;
+  --accent:#1D5C78; --accent-ink:#FFFFFF; --focus:#1D5C78;
+  --cedi:#26744F; --cedi-bg:#DCEFE4;
+  --calle:#A8580A; --calle-bg:#FBE8CF;
+  --perd:#AE3129; --perd-bg:#F7DAD7;
+  --anul:#5E6B75; --anul-bg:#E3E8EB;
+  --kraft1:#B98A50; --kraft2:#A57737;
+  --fh:'Barlow Semi Condensed','Arial Narrow',system-ui,sans-serif;
+  --fb:'Barlow',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F161B; --surface:#172127; --surface2:#1D2A31; --ink:#E6ECF0; --muted:#9AA9B4; --line:#2B3A44;
+    --accent:#5DB0CF; --accent-ink:#0B1A21; --focus:#7CC4E0;
+    --cedi:#62C795; --cedi-bg:#173627;
+    --calle:#F0A54F; --calle-bg:#3B2B13;
+    --perd:#F27B72; --perd-bg:#401D1A;
+    --anul:#9AA9B4; --anul-bg:#25313A;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F161B; --surface:#172127; --surface2:#1D2A31; --ink:#E6ECF0; --muted:#9AA9B4; --line:#2B3A44;
+  --accent:#5DB0CF; --accent-ink:#0B1A21; --focus:#7CC4E0;
+  --cedi:#62C795; --cedi-bg:#173627;
+  --calle:#F0A54F; --calle-bg:#3B2B13;
+  --perd:#F27B72; --perd-bg:#401D1A;
+  --anul:#9AA9B4; --anul-bg:#25313A;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--fb);font-size:15px;line-height:1.45;font-variant-numeric:tabular-nums}
+.wrap{max-width:1180px;margin:0 auto;padding:0 16px}
+h1,h2,h3{font-family:var(--fh);margin:0;letter-spacing:.005em}
+h1{font-size:30px;font-weight:700;line-height:1.05}
+h2{font-size:20px;font-weight:600;margin-bottom:12px}
+h3{font-size:16px;font-weight:600;margin-bottom:6px}
+p{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+
+/* Encabezado */
+.top{background:var(--surface);border-bottom:1px solid var(--line)}
+.stripe{height:7px;background:repeating-linear-gradient(90deg,var(--kraft1) 0 7px,var(--kraft2) 7px 14px)}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding-top:14px;padding-bottom:10px}
+.head p{color:var(--muted);font-size:14px;margin-top:2px}
+.sync{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:6px;white-space:nowrap}
+.sync::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--muted)}
+.sync.on::before{background:var(--cedi)}
+.sync.off::before{background:var(--perd)}
+
+.kpis{display:flex;flex-wrap:wrap;border-top:1px solid var(--line)}
+.kpi{flex:1 1 130px;padding:10px 14px 8px 0;margin-right:14px;border-right:1px solid var(--line);min-width:110px}
+.kpi:last-child{border-right:0;margin-right:0}
+.kpi .n{display:block;font-family:var(--fh);font-weight:700;font-size:34px;line-height:1}
+.kpi .l{display:block;font-size:13px;color:var(--muted);margin-top:3px}
+.kpi.k-cedi .n{color:var(--cedi)} .kpi.k-calle .n{color:var(--calle)} .kpi.k-perd .n{color:var(--perd)}
+.bar{display:flex;height:10px;border-radius:5px;overflow:hidden;background:var(--line);margin:4px 0 12px}
+.bar i{display:block;height:100%}
+.bar .s-cedi{background:var(--cedi)} .bar .s-calle{background:var(--calle)} .bar .s-perd{background:var(--perd)}
+
+.tabs{display:flex;gap:2px;overflow-x:auto;padding-top:2px}
+.tab{background:none;border:0;border-bottom:3px solid transparent;padding:10px 14px;font-family:var(--fh);font-size:17px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tab .badge{display:inline-block;min-width:22px;padding:0 6px;margin-left:6px;border-radius:11px;background:var(--calle-bg);color:var(--calle);font-size:13px;text-align:center}
+
+main{padding-top:18px;padding-bottom:40px}
+.banner{padding:10px 14px;border-radius:6px;background:var(--calle-bg);color:var(--calle);margin-bottom:14px;font-weight:500}
+.banner.err{background:var(--perd-bg);color:var(--perd)}
+.panel[hidden],[hidden]{display:none!important}
+
+/* Formularios */
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,400px),1fr));gap:16px;align-items:start}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:18px}
+.card.entrega{border-top:4px solid var(--calle)}
+.card.devol{border-top:4px solid var(--cedi)}
+label{display:block;font-size:13px;font-weight:600;color:var(--muted);margin-bottom:12px}
+input,select,textarea{display:block;width:100%;margin-top:4px;padding:9px 10px;border:1px solid var(--line);border-radius:6px;background:var(--surface);font-size:16px;color:var(--ink);font-weight:400}
+textarea{resize:vertical;min-height:76px}
+input[readonly]{background:var(--surface2);color:var(--muted)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:480px){.row2{grid-template-columns:1fr}}
+.btn{border:1px solid var(--line);background:var(--surface);border-radius:6px;padding:9px 14px;font-weight:600;cursor:pointer}
+.btn:hover{background:var(--surface2)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn.danger{color:var(--perd);border-color:var(--perd)}
+.btn.small{padding:5px 10px;font-size:13.5px}
+.btn:disabled{opacity:.5;cursor:not-allowed;filter:none}
+.fb{min-height:22px;margin:-4px 0 12px;font-size:14px}
+.fb .ok{color:var(--cedi);font-weight:500}
+.fb .bad{color:var(--perd);font-weight:500;display:block}
+.fb .note{color:var(--muted);display:block}
+.info{background:var(--surface2);border:1px solid var(--line);border-radius:6px;padding:10px 12px;margin-bottom:12px;font-size:14px}
+.info b{font-weight:600}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+
+/* Tablas */
+.toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:12px}
+.toolbar input,.toolbar select{margin:0;width:auto;min-width:180px;flex:1 1 200px;max-width:340px}
+.toolbar .grow{flex:1}
+.scroll{overflow-x:auto;background:var(--surface);border:1px solid var(--line);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:9px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--fh);font-size:14.5px;font-weight:600;color:var(--muted);background:var(--surface2);white-space:nowrap;position:sticky;top:0}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+.nums{color:var(--muted);font-size:13px;word-break:break-word}
+tr.late td:first-child{box-shadow:inset 4px 0 0 var(--perd)}
+tr.detail td{background:var(--surface2)}
+.link{background:none;border:0;padding:0;font-weight:600;color:var(--accent);cursor:pointer;text-align:left}
+.pill{display:inline-block;padding:2px 9px;border-radius:11px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.pill.pendiente,.pill.calle{background:var(--calle-bg);color:var(--calle)}
+.pill.perdidas,.pill.perdida{background:var(--perd-bg);color:var(--perd)}
+.pill.completa,.pill.cedi{background:var(--cedi-bg);color:var(--cedi)}
+.pill.anulada{background:var(--anul-bg);color:var(--anul)}
+.hist{margin:8px 0 0;padding:0;list-style:none;font-size:13.5px}
+.hist li{padding:4px 0;border-top:1px solid var(--line)}
+.empty{padding:26px;text-align:center;color:var(--muted)}
+.mv-sal{color:var(--calle);font-weight:600} .mv-ent{color:var(--cedi);font-weight:600} .mv-baja{color:var(--perd);font-weight:600}
+
+/* Inventario */
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:18px;padding:5px 13px;cursor:pointer;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip b{font-weight:700;margin-left:4px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.seg button{background:var(--surface);border:0;padding:7px 12px;cursor:pointer;font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.rack{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px}
+.cell{border:1px solid transparent;border-radius:5px;padding:9px 0;font-family:var(--fh);font-size:16px;font-weight:600;cursor:pointer;text-align:center}
+.cell.cedi{background:var(--cedi-bg);color:var(--cedi);border-color:color-mix(in srgb,var(--cedi) 35%,transparent)}
+.cell.calle{background:var(--calle-bg);color:var(--calle);border-color:color-mix(in srgb,var(--calle) 45%,transparent)}
+.cell.perdida{background:var(--perd-bg);color:var(--perd);border-color:color-mix(in srgb,var(--perd) 45%,transparent)}
+.note-sm{font-size:13px;color:var(--muted);margin:8px 2px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:16px;margin-top:18px;align-items:start}
+.diff{font-family:var(--fh);font-size:22px;font-weight:700}
+.diff.zero{color:var(--cedi)} .diff.nz{color:var(--perd)}
+
+dialog{border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);padding:20px;width:min(94vw,520px);max-height:88vh}
+dialog::backdrop{background:rgba(10,18,24,.55)}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:11px 18px;border-radius:8px;max-width:92vw;z-index:20;font-weight:500}
+.toast.err{background:var(--perd);color:#fff}
+@media (prefers-reduced-motion:no-preference){.toast{animation:up .18s ease-out}@keyframes up{from{opacity:0;transform:translate(-50%,8px)}}}
+.head{flex-wrap:wrap}
+.headright{display:flex;flex-direction:column;align-items:flex-end;gap:6px}
+.headtools{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;justify-content:flex-end}
+.headtools label{margin:0}
+.headtools input{margin-top:2px;min-width:160px;padding:8px 10px}
+.headtools .btn{padding:9px 13px}
+.btn.alert{background:var(--perd);border-color:var(--perd);color:#fff}
+@media print{.top .tabs,.toolbar,.card form,.btn,.stripe{display:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="stripe" aria-hidden="true"></div>
+  <div class="wrap head">
+    <div>
+      <h1>Canastillas</h1>
+      <p>Kardex de entrega y devolución del CEDI</p>
+    </div>
+    <div class="headright">
+      <div class="headtools">
+        <label>Operario<input id="operador" placeholder="Tu nombre" autocomplete="off" maxlength="40"></label>
+        <button id="btn-backup" class="btn primary" type="button">Respaldar</button>
+        <button id="btn-restore" class="btn" type="button">Restaurar</button>
+        <input id="file-restore" type="file" accept=".json,application/json" hidden>
+      </div>
+      <div id="sync" class="sync"></div>
+    </div>
+  </div>
+  <div class="wrap">
+    <div id="kpis" class="kpis"></div>
+    <div id="bar" class="bar" aria-hidden="true"></div>
+    <nav class="tabs" role="tablist" aria-label="Secciones">
+      <button class="tab" role="tab" data-tab="registrar" aria-selected="true">Registrar</button>
+      <button class="tab" role="tab" data-tab="pendientes" aria-selected="false">Planillas <span id="badge" class="badge" hidden>0</span></button>
+      <button class="tab" role="tab" data-tab="inventario" aria-selected="false">Inventario</button>
+      <button class="tab" role="tab" data-tab="kardex" aria-selected="false">Kardex</button>
+      <button class="tab" role="tab" data-tab="ajustes" aria-selected="false">Ajustes</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <div id="banner" class="banner" hidden></div>
+
+  <!-- REGISTRAR -->
+  <section id="tab-registrar" class="panel" role="tabpanel">
+    <div class="grid2">
+      <form id="f-ent" class="card entrega" autocomplete="off">
+        <h2>Entrega al conductor</h2>
+        <div class="row2">
+          <label>Número de planilla<input id="ent-planilla" required></label>
+          <label>Fecha de entrega<input id="ent-fecha" type="date" required></label>
+        </div>
+        <div class="row2">
+          <label>Ruta<input id="ent-ruta" required></label>
+          <label>Conductor<input id="ent-cond" required></label>
+        </div>
+        <label>Números de canastilla entregadas
+          <textarea id="ent-nums" placeholder="Ej: 101-120, 125, 130"></textarea>
+        </label>
+        <div id="ent-fb" class="fb" aria-live="polite"></div>
+        <button id="ent-btn" class="btn primary" type="submit">Registrar entrega</button>
+      </form>
+
+      <form id="f-dev" class="card devol" autocomplete="off">
+        <h2>Devolución del conductor</h2>
+        <div class="row2">
+          <label>Número de planilla<input id="dev-planilla" list="dl-pend" required></label>
+          <label>Fecha de devolución<input id="dev-fecha" type="date" required></label>
+        </div>
+        <datalist id="dl-pend"></datalist>
+        <div id="dev-info"></div>
+        <label>Números de canastilla devueltas
+          <textarea id="dev-nums" placeholder="Ej: 101-115, 118"></textarea>
+        </label>
+        <label>Observación (opcional)<input id="dev-obs"></label>
+        <div id="dev-fb" class="fb" aria-live="polite"></div>
+        <button id="dev-btn" class="btn primary" type="submit">Registrar devolución</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- PLANILLAS -->
+  <section id="tab-pendientes" class="panel" role="tabpanel" hidden>
+    <div class="toolbar">
+      <select id="pend-f" aria-label="Estado de la planilla">
+        <option value="pendiente">Con canastillas pendientes</option>
+        <option value="perdidas">Con pérdidas declaradas</option>
+        <option value="completa">Completas (todo devuelto)</option>
+        <option value="anulada">Anuladas</option>
+        <option value="todas">Todas</option>
+      </select>
+      <input id="pend-q" type="search" placeholder="Buscar planilla, ruta o conductor" aria-label="Buscar">
+      <span class="grow"></span>
+      <button id="pend-export" class="btn">Exportar CSV</button>
+    </div>
+    <div id="pend-list"></div>
+  </section>
+
+  <!-- INVENTARIO -->
+  <section id="tab-inventario" class="panel" role="tabpanel" hidden>
+    <div class="toolbar">
+      <div id="inv-chips" class="chips"></div>
+      <span class="grow"></span>
+      <div class="seg" role="group" aria-label="Vista">
+        <button data-invview="grid" aria-pressed="true">Cuadrícula</button>
+        <button data-invview="table" aria-pressed="false">Tabla</button>
+      </div>
+    </div>
+    <div class="toolbar">
+      <input id="inv-q" type="search" placeholder="Buscar número, planilla, ruta o conductor" aria-label="Buscar en inventario">
+      <span class="grow"></span>
+      <button id="inv-export" class="btn">Exportar inventario CSV</button>
+    </div>
+    <div id="inv-view"></div>
+    <div class="two">
+      <div class="card">
+        <h2>Conteo físico</h2>
+        <p class="note-sm" style="margin-top:0">Cuenta las canastillas que hay físicamente en el CEDI y compáralas con lo que dice el sistema.</p>
+        <div class="row2">
+          <label>Contadas en CEDI<input id="cnt-val" type="number" min="0" inputmode="numeric"></label>
+          <label>Esperadas según sistema<input id="cnt-exp" readonly></label>
+        </div>
+        <div style="margin-bottom:12px">Diferencia: <span id="cnt-diff" class="diff">–</span></div>
+        <label>Nota (opcional)<input id="cnt-note"></label>
+        <button id="cnt-save" class="btn primary">Guardar conteo</button>
+      </div>
+      <div class="card">
+        <h2>Últimos conteos</h2>
+        <div id="cnt-list"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- KARDEX -->
+  <section id="tab-kardex" class="panel" role="tabpanel" hidden>
+    <div class="toolbar">
+      <label style="margin:0">Desde<input id="kx-from" type="date"></label>
+      <label style="margin:0">Hasta<input id="kx-to" type="date"></label>
+      <label style="margin:0">Movimiento
+        <select id="kx-tipo">
+          <option value="">Todos</option>
+          <option value="entrega">Entregas</option>
+          <option value="devolucion">Devoluciones</option>
+          <option value="perdida">Pérdidas</option>
+          <option value="anulacion">Anulaciones</option>
+        </select>
+      </label>
+      <label style="margin:0">Buscar<input id="kx-q" type="search" placeholder="Planilla, ruta, conductor, nº"></label>
+      <span class="grow"></span>
+      <button id="kx-export" class="btn">Exportar CSV</button>
+    </div>
+    <div id="kx-view"></div>
+    <p class="note-sm">El saldo en CEDI se calcula en el orden en que se registraron los movimientos. Las pérdidas no cambian el saldo del CEDI porque esas canastillas ya habían salido.</p>
+  </section>
+
+  <!-- AJUSTES -->
+  <section id="tab-ajustes" class="panel" role="tabpanel" hidden>
+    <div class="card" style="max-width:640px">
+      <h2>Inventario de canastillas</h2>
+      <form id="f-cfg" autocomplete="off">
+        <label>Números de canastilla que existen
+          <textarea id="cfg-rango" placeholder="Ej: 1-300  o  1-250, 301-320"></textarea>
+        </label>
+        <div id="cfg-fb" class="fb"></div>
+        <label>Días en calle para marcar una planilla como atrasada
+          <input id="cfg-dias" type="number" min="1" max="60" value="2" style="max-width:140px">
+        </label>
+        <button id="cfg-btn" class="btn primary" type="submit">Guardar ajustes</button>
+        <p class="note-sm" id="cfg-perm"></p>
+      </form>
+    </div>
+  </section>
+</main>
+
+<dialog id="dlg"><form id="dlg-form"><div id="dlg-body"></div></form></dialog>
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script>
+'use strict';
+/* ---------- utilidades ---------- */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const todayStr = () => { const d = new Date(); return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; };
+const fmtD = s => { if (!s) return '–'; const [y,m,d] = s.split('-'); return `${d}/${m}/${y}`; };
+const fmtT = ts => new Date(ts).toLocaleTimeString('es-CO', {hour:'2-digit', minute:'2-digit'});
+const daysSince = s => { if (!s) return 0; const a = new Date(s + 'T00:00:00'), b = new Date(todayStr() + 'T00:00:00'); return Math.round((b - a) / 864e5); };
+const pidOf = s => String(s || '').trim().toUpperCase().replace(/[^A-Z0-9_\-.~:@+]/g, '_');
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+const trunc = (s, n) => s.length > n ? s.slice(0, n - 1) + '…' : s;
+
+function parseNums(text) {
+  const nums = [], bad = [], seen = new Set(), dups = new Set();
+  const add = n => { if (seen.has(n)) dups.add(n); else { seen.add(n); nums.push(n); } };
+  for (const t of String(text || '').split(/[\s,;]+/).filter(Boolean)) {
+    let m;
+    if ((m = t.match(/^(\d+)[-–—](\d+)$/))) {
+      const a = +m[1], b = +m[2];
+      if (a > b || b - a > 20000) { bad.push(t); continue; }
+      for (let i = a; i <= b; i++) add(i);
+    } else if (/^\d+$/.test(t)) add(+t);
+    else bad.push(t);
+  }
+  return {nums, bad, dups: [...dups]};
+}
+function compress(arr) {
+  const a = [...arr].sort((x, y) => x - y), out = [];
+  for (let i = 0; i < a.length;) {
+    let j = i;
+    while (j + 1 < a.length && a[j+1] === a[j] + 1) j++;
+    out.push(j === i ? `${a[i]}` : (j - i === 1 ? `${a[i]}, ${a[j]}` : `${a[i]}–${a[j]}`));
+    i = j + 1;
+  }
+  return out.join(', ');
+}
+const TIPO = {entrega:'Entrega', devolucion:'Devolución', perdida:'Pérdida declarada', anulacion:'Planilla anulada'};
+
+/* ---------- estado ---------- */
+const state = {
+  ok: false, admin: true, operador: '', meta: {}, conteosAll: [],
+  cfg: null, cfgReady: false, planillas: {}, conteos: [], names: {},
+  tab: 'registrar', invFilter: 'all', invView: 'grid', invQ: '',
+  pendFilter: 'pendiente', pendQ: '', expanded: new Set(),
+  busy: false, dbProblem: '', dlgSubmit: null, cfgDirty: false
+};
+let D = emptyDerived();
+
+function emptyDerived() {
+  return {inv: [], invSet: new Set(), status: new Map(), rows: [], pl: {}, total: 0, cedi: 0, calle: 0, perd: 0, pendPl: 0};
+}
+
+/* ---------- cálculo del kardex a partir de los movimientos ---------- */
+function derive() {
+  const d = emptyDerived();
+  const cfgNums = state.cfg ? parseNums(state.cfg.rango).nums : [];
+  d.inv = cfgNums.sort((a, b) => a - b);
+  d.invSet = new Set(d.inv);
+  d.total = d.inv.length;
+  for (const n of d.inv) d.status.set(n, {e: 'cedi'});
+  let calle = 0, perd = 0;
+  const setS = (n, o) => {
+    const prev = d.status.get(n);
+    if (prev.e === 'calle') calle--; else if (prev.e === 'perdida') perd--;
+    if (o.e === 'calle') calle++; else if (o.e === 'perdida') perd++;
+    d.status.set(n, o);
+    return prev;
+  };
+  const evs = [];
+  for (const [pid, p] of Object.entries(state.planillas)) {
+    d.pl[pid] = {id: pid, planilla: p.planilla || pid, ruta: p.ruta || '', conductor: p.conductor || '', fecha: p.fecha || '',
+      entregadas: new Set(), pend: [], perd: [], anulada: false, ev: [], dias: 0, estado: 'completa'};
+    for (const e of (p.eventos || [])) evs.push({...e, pid, planilla: p.planilla || pid, ruta: p.ruta || '', conductor: p.conductor || ''});
+  }
+  evs.sort((a, b) => (a.ts - b.ts) || (a.id < b.id ? -1 : 1));
+  for (const e of evs) {
+    let sal = 0, ent = 0, baja = 0;
+    const nums = e.nums || [];
+    if (e.tipo === 'entrega') {
+      for (const n of nums) {
+        if (!d.invSet.has(n)) continue;
+        const prev = setS(n, {e: 'calle', pid: e.pid, planilla: e.planilla, ruta: e.ruta, conductor: e.conductor, desde: e.fecha});
+        if (prev.e === 'cedi') sal++;
+        d.pl[e.pid].entregadas.add(n);
+      }
+    } else if (e.tipo === 'devolucion') {
+      for (const n of nums) {
+        if (!d.invSet.has(n)) continue;
+        const prev = d.status.get(n);
+        if (prev.e !== 'cedi' && prev.pid === e.pid) { setS(n, {e: 'cedi', ultima: e.fecha}); ent++; }
+      }
+    } else if (e.tipo === 'perdida') {
+      for (const n of nums) {
+        if (!d.invSet.has(n)) continue;
+        const prev = d.status.get(n);
+        if (prev.e === 'calle' && prev.pid === e.pid) { setS(n, {...prev, e: 'perdida', fechaPerdida: e.fecha}); baja++; }
+      }
+    } else if (e.tipo === 'anulacion') {
+      d.pl[e.pid].anulada = true;
+      for (const [n, s] of d.status) if (s.e !== 'cedi' && s.pid === e.pid) { setS(n, {e: 'cedi', ultima: e.fecha}); ent++; }
+    }
+    d.pl[e.pid].ev.push(e);
+    d.rows.push({...e, sal, ent, baja, saldo: d.total - calle - perd});
+  }
+  d.calle = calle; d.perd = perd; d.cedi = d.total - calle - perd;
+  for (const [n, s] of d.status) {
+    if (!s.pid || !d.pl[s.pid]) continue;
+    if (s.e === 'calle') d.pl[s.pid].pend.push(n);
+    else if (s.e === 'perdida') d.pl[s.pid].perd.push(n);
+  }
+  const alertDias = (state.cfg && state.cfg.diasAlerta) || 2;
+  for (const p of Object.values(d.pl)) {
+    p.pend.sort((a, b) => a - b); p.perd.sort((a, b) => a - b);
+    p.nEntregadas = p.entregadas.size;
+    p.nDevueltas = p.nEntregadas - p.pend.length - p.perd.length;
+    if (p.anulada) p.estado = 'anulada';
+    else if (p.pend.length) p.estado = 'pendiente';
+    else if (p.perd.length) p.estado = 'perdidas';
+    else p.estado = 'completa';
+    if (p.pend.length) {
+      const oldest = p.pend.map(n => d.status.get(n).desde).filter(Boolean).sort()[0] || p.fecha;
+      p.dias = daysSince(oldest);
+      p.late = p.dias >= alertDias;
+      d.pendPl++;
+    }
+  }
+  D = d;
+}
+
+/* ---------- interfaz general ---------- */
+const $toast = $('#toast'); let toastT;
+function toast(msg, err) {
+  $toast.textContent = msg; $toast.className = 'toast' + (err ? ' err' : ''); $toast.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(() => { $toast.hidden = true; }, err ? 6000 : 3200);
+}
+function explain(e) {
+  if (e && (e.name === 'QuotaExceededError' || e.code === 22)) return 'La tableta se quedó sin espacio de almacenamiento del navegador. Haz un respaldo ahora.';
+  return 'No se pudo guardar. Intenta de nuevo y, si se repite, haz un respaldo.';
+}
+function who(id) { return id || '–'; }
+const readOnly = () => !state.ok || !state.operador.trim();
+
+function showTab(t) {
+  state.tab = t;
+  $$('.panel').forEach(p => p.hidden = p.id !== 'tab-' + t);
+  $$('.tab').forEach(b => b.setAttribute('aria-selected', String(b.dataset.tab === t)));
+}
+function setTab(t) { showTab(t); renderAll(); }
+
+function refresh() {
+  derive();
+  if (state.cfgReady && !state.cfg && state.tab !== 'ajustes') showTab('ajustes');
+  state.conteos = [...state.conteosAll].sort((a, b) => b.ts - a.ts).slice(0, 8);
+  renderAll();
+}
+
+function renderAll() {
+  renderHead();
+  renderRegistrar();
+  if (state.tab === 'pendientes') renderPend();
+  if (state.tab === 'inventario') renderInv();
+  if (state.tab === 'kardex') renderKardex();
+  if (state.tab === 'ajustes') renderAjustes();
+}
+
+function renderHead() {
+  const bs = backupStatus(), late = state.ok && bs.unsaved && bs.day !== todayStr();
+  const msgs = []; let err = false;
+  if (!state.ok) { msgs.push('Este navegador no permite guardar datos. Abre la página en Chrome y fuera del modo incógnito.'); err = true; }
+  else {
+    if (!state.operador.trim()) msgs.push('Escribe el nombre del operario (arriba) para poder registrar movimientos.');
+    if (state.cfgReady && !state.cfg) msgs.push('Define qué números de canastilla existen en la pestaña Ajustes.');
+    if (late) { msgs.push(bs.last ? `Falta el respaldo de hoy: el último fue el ${fmtD(bs.day)}.` : 'Todavía no has hecho ningún respaldo.'); err = true; }
+  }
+  const b = $('#banner');
+  b.hidden = !msgs.length; b.className = 'banner' + (err ? ' err' : ''); b.textContent = msgs.join(' ');
+  const s = $('#sync');
+  s.className = 'sync ' + (state.ok && !bs.unsaved ? 'on' : 'off');
+  s.textContent = !state.ok ? 'Sin almacenamiento' : (bs.last ? `Último respaldo: ${fmtD(bs.day)} ${fmtT(bs.last)}${bs.unsaved ? ', con cambios nuevos' : ''}` : 'Sin respaldos todavía');
+  $('#btn-backup').classList.toggle('alert', late);
+  const k = $('#kpis');
+  k.innerHTML = `
+    <div class="kpi"><span class="n">${D.total}</span><span class="l">Canastillas en total</span></div>
+    <div class="kpi k-cedi"><span class="n">${D.cedi}</span><span class="l">En CEDI</span></div>
+    <div class="kpi k-calle"><span class="n">${D.calle}</span><span class="l">En calle</span></div>
+    <div class="kpi k-perd"><span class="n">${D.perd}</span><span class="l">Perdidas</span></div>
+    <div class="kpi"><span class="n">${D.pendPl}</span><span class="l">Planillas pendientes</span></div>`;
+  const pct = v => D.total ? (v / D.total * 100).toFixed(2) : 0;
+  $('#bar').innerHTML = `<i class="s-cedi" style="width:${pct(D.cedi)}%"></i><i class="s-calle" style="width:${pct(D.calle)}%"></i><i class="s-perd" style="width:${pct(D.perd)}%"></i>`;
+  const bd = $('#badge'); bd.hidden = !D.pendPl; bd.textContent = D.pendPl;
+}
+
+/* ---------- Registrar: entrega ---------- */
+function entregaCheck() {
+  const p = parseNums($('#ent-nums').value), errs = [];
+  if (p.bad.length) errs.push(`No reconozco: ${p.bad.slice(0, 4).join(', ')}`);
+  if (p.dups.length) errs.push(`Números repetidos: ${compress(p.dups)}`);
+  const out = p.nums.filter(n => !D.invSet.has(n));
+  if (out.length) errs.push(`Fuera del inventario: ${compress(out)}`);
+  const na = p.nums.filter(n => D.invSet.has(n) && D.status.get(n).e !== 'cedi');
+  if (na.length) {
+    const ex = na.slice(0, 3).map(n => { const s = D.status.get(n); return `${n} (${s.e === 'perdida' ? 'perdida' : 'en calle'}, planilla ${s.planilla})`; });
+    errs.push(`No están disponibles en CEDI: ${ex.join('; ')}${na.length > 3 ? ` y ${na.length - 3} más` : ''}`);
+  }
+  return {nums: p.nums, errs};
+}
+function renderEntrega() {
+  const c = entregaCheck();
+  const pid = pidOf($('#ent-planilla').value);
+  const ex = pid && D.pl[pid];
+  const ruta = $('#ent-ruta'), cond = $('#ent-cond');
+  if (ex && !ex.anulada) {
+    ruta.value = ex.ruta; cond.value = ex.conductor; ruta.readOnly = cond.readOnly = true;
+  } else if (ruta.readOnly) { ruta.readOnly = cond.readOnly = false; ruta.value = cond.value = ''; }
+  let h = '';
+  if (ex && ex.anulada) h += `<span class="bad">La planilla ${esc(ex.planilla)} está anulada; usa otro número.</span>`;
+  else if (ex) h += `<span class="note">Esta planilla ya existe (${ex.nEntregadas} entregadas). Se agrega como entrega adicional.</span>`;
+  if (c.nums.length) h += `<span class="ok">${c.nums.length} canastilla${c.nums.length === 1 ? '' : 's'}: ${esc(trunc(compress(c.nums), 90))}</span>`;
+  c.errs.forEach(e => h += `<span class="bad">${esc(e)}</span>`);
+  $('#ent-fb').innerHTML = h;
+  const ok = c.nums.length && !c.errs.length && $('#ent-planilla').value.trim() && $('#ent-ruta').value.trim() && $('#ent-cond').value.trim() && $('#ent-fecha').value && !(ex && ex.anulada);
+  $('#ent-btn').disabled = !ok || state.busy || readOnly() || !state.cfg;
+}
+
+/* ---------- Registrar: devolución ---------- */
+function devCheck() {
+  const raw = $('#dev-planilla').value.trim();
+  if (!raw) return {st: 'empty'};
+  const p = D.pl[pidOf(raw)];
+  if (!p) return {st: 'nofound'};
+  if (p.anulada) return {st: 'anulada', p};
+  const ret = new Set([...p.pend, ...p.perd]);
+  const t = parseNums($('#dev-nums').value), errs = [];
+  if (t.bad.length) errs.push(`No reconozco: ${t.bad.slice(0, 4).join(', ')}`);
+  if (t.dups.length) errs.push(`Números repetidos: ${compress(t.dups)}`);
+  const no = t.nums.filter(n => !ret.has(n));
+  if (no.length) errs.push(`No están pendientes en esta planilla (o ya se devolvieron): ${compress(no)}`);
+  return {st: 'ok', p, nums: t.nums, errs};
+}
+function renderDevolucion() {
+  const dl = $('#dl-pend');
+  const open = Object.values(D.pl).filter(p => p.estado === 'pendiente' || p.estado === 'perdidas').sort((a, b) => b.dias - a.dias);
+  dl.innerHTML = open.map(p => `<option value="${esc(p.planilla)}">${esc(`Ruta ${p.ruta} – ${p.pend.length} pendientes`)}</option>`).join('');
+  const c = devCheck();
+  const info = $('#dev-info'); let fb = '';
+  if (c.st === 'nofound') info.innerHTML = `<div class="info">No existe una planilla con ese número.</div>`;
+  else if (c.st === 'anulada') info.innerHTML = `<div class="info">La planilla ${esc(c.p.planilla)} fue anulada.</div>`;
+  else if (c.st === 'ok') {
+    const p = c.p;
+    info.innerHTML = `<div class="info"><b>Planilla ${esc(p.planilla)}</b>, ruta ${esc(p.ruta)}, conductor ${esc(p.conductor)}.<br>
+      Entregadas ${p.nEntregadas}, devueltas ${p.nDevueltas}, <b>pendientes ${p.pend.length}</b>${p.pend.length ? `: ${esc(trunc(compress(p.pend), 110))}` : ''}${p.perd.length ? `.<br>Pérdidas declaradas: ${esc(compress(p.perd))}` : ''}
+      ${p.pend.length ? `<div class="actions"><button type="button" class="btn small" data-act="devall">Devolver todas las pendientes</button></div>` : ''}</div>`;
+    if (c.nums.length) fb += `<span class="ok">${c.nums.length} canastilla${c.nums.length === 1 ? '' : 's'} a devolver. Quedarían ${Math.max(0, p.pend.length - c.nums.filter(n => p.pend.includes(n)).length)} pendientes.</span>`;
+    c.errs.forEach(e => fb += `<span class="bad">${esc(e)}</span>`);
+  } else info.innerHTML = '';
+  $('#dev-fb').innerHTML = fb;
+  $('#dev-btn').disabled = !(c.st === 'ok' && c.nums.length && !c.errs.length && $('#dev-fecha').value) || state.busy || readOnly();
+}
+function renderRegistrar() { renderEntrega(); renderDevolucion(); }
+
+/* ---------- escritura ---------- */
+async function writeEvent(pid, base, ev) {
+  const cur = state.planillas[pid];
+  const d = cur ? JSON.parse(JSON.stringify(cur))
+    : {planilla: base.planilla, ruta: base.ruta, conductor: base.conductor, fecha: base.fecha, creado: Date.now(), eventos: []};
+  d.eventos = (d.eventos || []).concat([ev]);
+  const prev = state.planillas;
+  state.planillas = {...prev, [pid]: d};
+  try { saveStore(); } catch (e) { state.planillas = prev; throw e; }
+  refresh();
+}
+const mkEv = (tipo, fecha, nums, obs) => ({id: uid(), tipo, fecha, ts: Date.now(), nums, por: state.operador.trim() || null, obs: obs || ''});
+async function guarded(fn) {
+  if (state.busy) return;
+  state.busy = true; renderRegistrar();
+  try { await fn(); } catch (e) { toast(explain(e), true); }
+  state.busy = false; renderRegistrar();
+}
+
+$('#f-ent').addEventListener('submit', ev => {
+  ev.preventDefault();
+  guarded(async () => {
+    const c = entregaCheck(); if (!c.nums.length || c.errs.length) return;
+    const planilla = $('#ent-planilla').value.trim(), pid = pidOf(planilla);
+    if (D.pl[pid] && D.pl[pid].anulada) return;
+    const ex = state.planillas[pid];
+    const fecha = $('#ent-fecha').value;
+    const base = {planilla, ruta: ex ? ex.ruta : $('#ent-ruta').value.trim(), conductor: ex ? ex.conductor : $('#ent-cond').value.trim(), fecha};
+    await writeEvent(pid, base, mkEv('entrega', fecha, c.nums, ''));
+    toast(`Entrega registrada: planilla ${planilla}, ${c.nums.length} canastillas.`);
+    ['#ent-planilla', '#ent-ruta', '#ent-cond', '#ent-nums'].forEach(s => { $(s).value = ''; $(s).readOnly = false; });
+    $('#ent-planilla').focus();
+  });
+});
+$('#f-dev').addEventListener('submit', ev => {
+  ev.preventDefault();
+  guarded(async () => {
+    const c = devCheck(); if (c.st !== 'ok' || !c.nums.length || c.errs.length) return;
+    const pid = c.p.id, fecha = $('#dev-fecha').value;
+    await writeEvent(pid, null, mkEv('devolucion', fecha, c.nums, $('#dev-obs').value.trim()));
+    const quedan = c.p.pend.filter(n => !c.nums.includes(n)).length;
+    toast(`Devolución registrada: planilla ${c.p.planilla}, ${c.nums.length} canastillas. Quedan ${quedan} pendientes.`);
+    ['#dev-nums', '#dev-obs'].forEach(s => $(s).value = '');
+    if (!quedan) $('#dev-planilla').value = '';
+  });
+});
+['#ent-planilla', '#ent-fecha', '#ent-ruta', '#ent-cond', '#ent-nums', '#dev-planilla', '#dev-fecha', '#dev-nums', '#dev-obs']
+  .forEach(s => $(s).addEventListener('input', renderRegistrar));
+
+/* ---------- Planillas ---------- */
+function renderPend() {
+  const f = state.pendFilter, q = state.pendQ.trim().toLowerCase();
+  const list = Object.values(D.pl).filter(p => {
+    if (f !== 'todas' && p.estado !== f) return false;
+    if (q && !`${p.planilla} ${p.ruta} ${p.conductor}`.toLowerCase().includes(q)) return false;
+    return true;
+  }).sort((a, b) => f === 'pendiente' ? b.dias - a.dias : (b.fecha || '').localeCompare(a.fecha || ''));
+  const box = $('#pend-list');
+  if (!list.length) { box.innerHTML = `<div class="scroll"><div class="empty">${Object.keys(D.pl).length ? 'No hay planillas con ese filtro.' : 'Aún no se ha registrado ninguna entrega.'}</div></div>`; return; }
+  const pill = {pendiente: 'Pendiente', perdidas: 'Con pérdidas', completa: 'Completa', anulada: 'Anulada'};
+  let h = `<div class="scroll"><table><thead><tr><th>Planilla</th><th>Ruta</th><th>Conductor</th><th>Entrega</th><th class="r">Días</th><th class="r">Entregadas</th><th class="r">Devueltas</th><th>Pendientes</th><th>Estado</th></tr></thead><tbody>`;
+  for (const p of list) {
+    const open = state.expanded.has(p.id);
+    h += `<tr class="${p.late ? 'late' : ''}">
+      <td><button class="link" data-act="toggle" data-pid="${esc(p.id)}" aria-expanded="${open}">${open ? '▾' : '▸'} ${esc(p.planilla)}</button></td>
+      <td>${esc(p.ruta)}</td><td>${esc(p.conductor)}</td><td>${fmtD(p.fecha)}</td>
+      <td class="r">${p.pend.length ? p.dias : '–'}</td><td class="r">${p.nEntregadas}</td><td class="r">${p.nDevueltas}</td>
+      <td><b>${p.pend.length}</b> <span class="nums">${esc(trunc(compress(p.pend), 46))}</span></td>
+      <td><span class="pill ${p.estado}">${pill[p.estado]}</span></td></tr>`;
+    if (open) {
+      h += `<tr class="detail"><td colspan="9">
+        <div><b>Pendientes:</b> <span class="nums">${p.pend.length ? esc(compress(p.pend)) : 'ninguna'}</span></div>
+        ${p.perd.length ? `<div><b>Perdidas:</b> <span class="nums">${esc(compress(p.perd))}</span></div>` : ''}
+        <ul class="hist">${p.ev.map(e => `<li>${fmtD(e.fecha)} ${fmtT(e.ts)}: <b>${TIPO[e.tipo]}</b>${e.nums && e.nums.length ? `, ${e.nums.length} canastillas (${esc(trunc(compress(e.nums), 70))})` : ''}, registró ${esc(who(e.por))}${e.obs ? `. ${esc(e.obs)}` : ''}</li>`).join('')}</ul>
+        <div class="actions">
+          ${!p.anulada && (p.pend.length || p.perd.length) ? `<button class="btn small primary" data-act="dev" data-pid="${esc(p.id)}">Registrar devolución</button>` : ''}
+          ${!p.anulada && p.pend.length ? `<button class="btn small danger" data-act="perdida" data-pid="${esc(p.id)}">Declarar pérdida</button>` : ''}
+          ${!p.anulada && state.admin ? `<button class="btn small" data-act="anular" data-pid="${esc(p.id)}">Anular planilla</button>` : ''}
+        </div></td></tr>`;
+    }
+  }
+  box.innerHTML = h + '</tbody></table></div>';
+}
+
+/* ---------- Diálogos ---------- */
+const dlg = $('#dlg');
+function openDlg(html, onSubmit) {
+  $('#dlg-body').innerHTML = html; state.dlgSubmit = onSubmit;
+  if (!dlg.open) dlg.showModal();
+}
+$('#dlg-form').addEventListener('submit', async ev => {
+  ev.preventDefault();
+  if (!state.dlgSubmit || state.busy) return;
+  state.busy = true;
+  try { const done = await state.dlgSubmit(); if (done !== false) dlg.close(); }
+  catch (e) { toast(explain(e), true); }
+  state.busy = false;
+});
+dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
+
+function dlgPerdida(pid) {
+  const p = D.pl[pid]; if (!p) return;
+  openDlg(`<h2>Declarar pérdida, planilla ${esc(p.planilla)}</h2>
+    <label>Canastillas perdidas<textarea id="pd-nums" required>${esc(compress(p.pend))}</textarea></label>
+    <label>Fecha<input id="pd-fecha" type="date" value="${todayStr()}" required></label>
+    <label>Motivo<input id="pd-motivo" required placeholder="Ej: el cliente no las devolvió"></label>
+    <div id="pd-err" class="fb"></div>
+    <div class="actions"><button class="btn danger" type="submit">Declarar pérdida</button><button class="btn" type="button" data-act="close">Cancelar</button></div>`,
+    async () => {
+      const t = parseNums($('#pd-nums').value), pend = new Set(D.pl[pid].pend);
+      const bad = t.nums.filter(n => !pend.has(n));
+      if (!t.nums.length || t.bad.length || bad.length) { $('#pd-err').innerHTML = `<span class="bad">Solo puedes declarar como perdidas canastillas que sigan pendientes en esta planilla${bad.length ? ` (revisa: ${esc(compress(bad))})` : ''}.</span>`; return false; }
+      await writeEvent(pid, null, mkEv('perdida', $('#pd-fecha').value, t.nums, $('#pd-motivo').value.trim()));
+      toast(`${t.nums.length} canastillas declaradas como pérdida.`);
+    });
+}
+function dlgAnular(pid) {
+  const p = D.pl[pid]; if (!p) return;
+  openDlg(`<h2>Anular planilla ${esc(p.planilla)}</h2>
+    <p class="note-sm" style="margin-top:0">Se registra la anulación y las canastillas que seguían fuera vuelven al inventario del CEDI. El historial se conserva.</p>
+    <label>Motivo<input id="an-motivo" required placeholder="Ej: planilla digitada por error"></label>
+    <div class="actions"><button class="btn danger" type="submit">Anular planilla</button><button class="btn" type="button" data-act="close">Cancelar</button></div>`,
+    async () => { await writeEvent(pid, null, mkEv('anulacion', todayStr(), [], $('#an-motivo').value.trim())); toast('Planilla anulada.'); });
+}
+function dlgCrate(n) {
+  const s = D.status.get(n); if (!s) return;
+  const rows = D.rows.filter(r => (r.nums || []).includes(n) && r.tipo !== 'anulacion');
+  const est = {cedi: 'En CEDI', calle: 'En calle', perdida: 'Perdida'}[s.e];
+  openDlg(`<h2>Canastilla ${n}</h2>
+    <p><span class="pill ${s.e}">${est}</span>${s.e !== 'cedi' ? `, planilla ${esc(s.planilla)}, ruta ${esc(s.ruta)}, conductor ${esc(s.conductor)}, desde ${fmtD(s.desde)}` : ''}</p>
+    <h3 style="margin-top:14px">Historial</h3>
+    ${rows.length ? `<ul class="hist">${rows.map(r => `<li>${fmtD(r.fecha)} ${fmtT(r.ts)}: <b>${TIPO[r.tipo]}</b>, planilla ${esc(r.planilla)}, ruta ${esc(r.ruta)}, ${esc(r.conductor)}${D.pl[r.pid] && D.pl[r.pid].anulada ? ' (planilla anulada)' : ''}</li>`).join('')}</ul>` : '<p class="note-sm">Esta canastilla nunca ha salido del CEDI.</p>'}
+    <div class="actions"><button class="btn" type="button" data-act="close">Cerrar</button></div>`, null);
+}
+
+/* ---------- Inventario ---------- */
+function renderInv() {
+  const q = state.invQ.trim().toLowerCase();
+  const counts = {all: D.total, cedi: D.cedi, calle: D.calle, perdida: D.perd};
+  const labels = {all: 'Todas', cedi: 'En CEDI', calle: 'En calle', perdida: 'Perdidas'};
+  $('#inv-chips').innerHTML = Object.keys(labels).map(k => `<button class="chip" data-invf="${k}" aria-pressed="${state.invFilter === k}">${labels[k]}<b>${counts[k]}</b></button>`).join('');
+  $$('[data-invview]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.invview === state.invView)));
+  const list = D.inv.filter(n => {
+    const s = D.status.get(n);
+    if (state.invFilter !== 'all' && s.e !== state.invFilter) return false;
+    if (q) {
+      const txt = `${s.planilla || ''} ${s.ruta || ''} ${s.conductor || ''}`.toLowerCase();
+      if (/^\d+$/.test(q) ? !(String(n) === q || txt.includes(q)) : !txt.includes(q)) return false;
+    }
+    return true;
+  });
+  const v = $('#inv-view');
+  if (!D.total) { v.innerHTML = `<div class="scroll"><div class="empty">Define el inventario en Ajustes.</div></div>`; }
+  else if (!list.length) v.innerHTML = `<div class="scroll"><div class="empty">Ninguna canastilla coincide con el filtro.</div></div>`;
+  else if (state.invView === 'grid') {
+    v.innerHTML = `<div class="rack">${list.map(n => { const s = D.status.get(n); const tip = `Canastilla ${n}: ${s.e === 'cedi' ? 'en CEDI' : (s.e === 'calle' ? 'en calle' : 'perdida')}${s.planilla ? `, planilla ${s.planilla}, ruta ${s.ruta}, ${s.conductor}` : ''}`; return `<button class="cell ${s.e}" data-act="crate" data-n="${n}" title="${esc(tip)}" aria-label="${esc(tip)}">${n}</button>`; }).join('')}</div>
+      <p class="note-sm">${list.length} canastillas. Toca una para ver su historial.</p>`;
+  } else {
+    const cap = list.slice(0, 1000);
+    v.innerHTML = `<div class="scroll"><table><thead><tr><th>N°</th><th>Estado</th><th>Planilla</th><th>Ruta</th><th>Conductor</th><th>Salió</th><th class="r">Días</th></tr></thead><tbody>${cap.map(n => { const s = D.status.get(n); return `<tr><td><button class="link" data-act="crate" data-n="${n}">${n}</button></td><td><span class="pill ${s.e}">${{cedi: 'En CEDI', calle: 'En calle', perdida: 'Perdida'}[s.e]}</span></td><td>${esc(s.planilla || '–')}</td><td>${esc(s.ruta || '–')}</td><td>${esc(s.conductor || '–')}</td><td>${s.desde ? fmtD(s.desde) : '–'}</td><td class="r">${s.desde ? daysSince(s.desde) : '–'}</td></tr>`; }).join('')}</tbody></table></div>${list.length > cap.length ? `<p class="note-sm">Se muestran las primeras 1000 de ${list.length}. Usa el filtro o exporta a CSV.</p>` : ''}`;
+  }
+  renderConteo();
+}
+function renderConteo() {
+  $('#cnt-exp').value = D.cedi;
+  const v = $('#cnt-val').value;
+  const d = $('#cnt-diff');
+  if (v === '') { d.textContent = '–'; d.className = 'diff'; }
+  else { const diff = +v - D.cedi; d.textContent = (diff > 0 ? '+' : '') + diff; d.className = 'diff ' + (diff === 0 ? 'zero' : 'nz'); }
+  $('#cnt-save').disabled = v === '' || readOnly() || state.busy;
+  const l = $('#cnt-list');
+  l.innerHTML = state.conteos.length ? `<table><thead><tr><th>Fecha</th><th class="r">Sistema</th><th class="r">Contadas</th><th class="r">Dif.</th><th>Registró</th></tr></thead><tbody>${state.conteos.map(c => { const diff = c.contado - c.esperado; return `<tr><td>${fmtD(c.fecha)} ${fmtT(c.ts)}</td><td class="r">${c.esperado}</td><td class="r">${c.contado}</td><td class="r ${diff ? 'mv-baja' : 'mv-ent'}">${diff > 0 ? '+' : ''}${diff}</td><td>${esc(who(c.por))}${c.nota ? `<div class="nums">${esc(c.nota)}</div>` : ''}</td></tr>`; }).join('')}</tbody></table>` : '<div class="empty">Sin conteos guardados.</div>';
+}
+$('#cnt-val').addEventListener('input', renderConteo);
+$('#cnt-save').addEventListener('click', () => {
+  if (state.busy) return;
+  const prev = state.conteosAll;
+  state.conteosAll = prev.concat([{fecha: todayStr(), ts: Date.now(), esperado: D.cedi, contado: +$('#cnt-val').value, nota: $('#cnt-note').value.trim(), por: state.operador.trim() || null}]);
+  try { saveStore(); toast('Conteo guardado.'); $('#cnt-val').value = ''; $('#cnt-note').value = ''; }
+  catch (e) { state.conteosAll = prev; toast(explain(e), true); }
+  refresh();
+});
+
+/* ---------- Kardex ---------- */
+function kxRows() {
+  const from = $('#kx-from').value, to = $('#kx-to').value, tipo = $('#kx-tipo').value, q = $('#kx-q').value.trim().toLowerCase();
+  return D.rows.filter(r => {
+    if (from && r.fecha < from) return false;
+    if (to && r.fecha > to) return false;
+    if (tipo && r.tipo !== tipo) return false;
+    if (q) {
+      const txt = `${r.planilla} ${r.ruta} ${r.conductor}`.toLowerCase();
+      if (/^\d+$/.test(q) ? !(txt.includes(q) || (r.nums || []).includes(+q)) : !txt.includes(q)) return false;
+    }
+    return true;
+  }).sort((a, b) => b.ts - a.ts);
+}
+function renderKardex() {
+  const rows = kxRows(), box = $('#kx-view');
+  if (!rows.length) { box.innerHTML = `<div class="scroll"><div class="empty">Sin movimientos para mostrar.</div></div>`; return; }
+  const cap = rows.slice(0, 500);
+  box.innerHTML = `<div class="scroll"><table><thead><tr><th>Fecha</th><th>Planilla</th><th>Movimiento</th><th>Ruta</th><th>Conductor</th><th class="r">Salida</th><th class="r">Entrada</th><th class="r">Baja</th><th class="r">Saldo CEDI</th><th>Números</th><th>Registró</th></tr></thead><tbody>${cap.map(r => `<tr>
+    <td>${fmtD(r.fecha)}<div class="nums">${fmtT(r.ts)}</div></td><td>${esc(r.planilla)}</td>
+    <td>${TIPO[r.tipo]}${r.obs ? `<div class="nums">${esc(r.obs)}</div>` : ''}</td>
+    <td>${esc(r.ruta)}</td><td>${esc(r.conductor)}</td>
+    <td class="r mv-sal">${r.sal || ''}</td><td class="r mv-ent">${r.ent || ''}</td><td class="r mv-baja">${r.baja || ''}</td>
+    <td class="r"><b>${r.saldo}</b></td><td class="nums" title="${esc(compress(r.nums || []))}">${esc(trunc(compress(r.nums || []), 60))}</td><td>${esc(who(r.por))}</td></tr>`).join('')}</tbody></table></div>${rows.length > cap.length ? `<p class="note-sm">Se muestran los 500 movimientos más recientes de ${rows.length}. Exporta a CSV para verlos todos.</p>` : ''}`;
+}
+['#kx-from', '#kx-to', '#kx-tipo', '#kx-q'].forEach(s => $(s).addEventListener('input', renderKardex));
+
+/* ---------- Ajustes ---------- */
+function cfgCheck() {
+  const t = parseNums($('#cfg-rango').value), errs = [];
+  if (t.bad.length) errs.push(`No reconozco: ${t.bad.slice(0, 4).join(', ')}`);
+  if (t.dups.length) errs.push(`Números repetidos: ${compress(t.dups)}`);
+  if (!t.nums.length) errs.push('Escribe al menos un número o rango.');
+  const set = new Set(t.nums);
+  const lost = [...D.status].filter(([n, s]) => s.e !== 'cedi' && !set.has(n)).map(([n]) => n);
+  if (lost.length) errs.push(`No puedes quitar canastillas que están en calle o perdidas: ${compress(lost)}`);
+  return {nums: t.nums, errs};
+}
+function renderAjustes() {
+  const focus = document.activeElement;
+  if (!state.cfgDirty && focus !== $('#cfg-rango') && focus !== $('#cfg-dias')) {
+    $('#cfg-rango').value = state.cfg ? state.cfg.rango : '';
+    $('#cfg-dias').value = state.cfg ? (state.cfg.diasAlerta || 2) : 2;
+  }
+  const c = cfgCheck();
+  $('#cfg-fb').innerHTML = (c.nums.length && !c.errs.length ? `<span class="ok">${c.nums.length} canastillas en el inventario.</span>` : '') + c.errs.map(e => `<span class="bad">${esc(e)}</span>`).join('');
+  const can = state.admin && state.ok;
+  $('#cfg-btn').disabled = !can || c.errs.length || state.busy;
+  $('#cfg-rango').readOnly = $('#cfg-dias').readOnly = !can;
+  $('#cfg-perm').textContent = can ? '' : 'No se puede editar en este momento.';
+}
+['#cfg-rango', '#cfg-dias'].forEach(s => $(s).addEventListener('input', () => { state.cfgDirty = true; renderAjustes(); }));
+$('#f-cfg').addEventListener('submit', ev => {
+  ev.preventDefault();
+  const c = cfgCheck(); if (c.errs.length || state.busy) return;
+  const prev = state.cfg;
+  state.cfg = {rango: $('#cfg-rango').value.trim(), diasAlerta: Math.max(1, Math.min(60, +$('#cfg-dias').value || 2)), ts: Date.now(), por: state.operador.trim() || null};
+  try { saveStore(); state.cfgDirty = false; toast('Ajustes guardados.'); }
+  catch (e) { state.cfg = prev; toast(explain(e), true); }
+  refresh();
+});
+
+/* ---------- Exportar CSV ---------- */
+function downloadBlob(name, text, type) {
+  const blob = new Blob([text], {type});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+}
+function exportCSV(name, head, rows) {
+  const q = v => { v = String(v ?? ''); return /[";\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+  const csv = '\ufeff' + [head, ...rows].map(r => r.map(q).join(';')).join('\r\n');
+  try { downloadBlob(`${name}-${todayStr()}.csv`, csv, 'text/csv;charset=utf-8'); }
+  catch (e) { toast('No se pudo descargar el archivo.', true); }
+}
+$('#kx-export').addEventListener('click', () => exportCSV('kardex-canastillas',
+  ['Fecha', 'Hora', 'Planilla', 'Movimiento', 'Ruta', 'Conductor', 'Salida', 'Entrada', 'Baja', 'Saldo CEDI', 'Cantidad', 'Numeros', 'Registro', 'Observacion'],
+  kxRows().map(r => [fmtD(r.fecha), fmtT(r.ts), r.planilla, TIPO[r.tipo], r.ruta, r.conductor, r.sal, r.ent, r.baja, r.saldo, (r.nums || []).length, compress(r.nums || []), who(r.por), r.obs])));
+$('#inv-export').addEventListener('click', () => exportCSV('inventario-canastillas',
+  ['Numero', 'Estado', 'Planilla', 'Ruta', 'Conductor', 'Fecha salida', 'Dias fuera'],
+  D.inv.map(n => { const s = D.status.get(n); return [n, {cedi: 'En CEDI', calle: 'En calle', perdida: 'Perdida'}[s.e], s.planilla || '', s.ruta || '', s.conductor || '', s.desde ? fmtD(s.desde) : '', s.desde && s.e !== 'cedi' ? daysSince(s.desde) : '']; })));
+$('#pend-export').addEventListener('click', () => exportCSV('planillas-canastillas',
+  ['Planilla', 'Ruta', 'Conductor', 'Fecha entrega', 'Entregadas', 'Devueltas', 'Pendientes', 'Numeros pendientes', 'Perdidas', 'Estado'],
+  Object.values(D.pl).sort((a, b) => (b.fecha || '').localeCompare(a.fecha || '')).map(p => [p.planilla, p.ruta, p.conductor, fmtD(p.fecha), p.nEntregadas, p.nDevueltas, p.pend.length, compress(p.pend), p.perd.length, p.estado])));
+
+/* ---------- eventos globales ---------- */
+document.addEventListener('click', e => {
+  const tab = e.target.closest('[data-tab]'); if (tab) return setTab(tab.dataset.tab);
+  const f = e.target.closest('[data-invf]'); if (f) { state.invFilter = f.dataset.invf; return renderInv(); }
+  const v = e.target.closest('[data-invview]'); if (v) { state.invView = v.dataset.invview; return renderInv(); }
+  const t = e.target.closest('[data-act]'); if (!t) return;
+  const act = t.dataset.act, pid = t.dataset.pid;
+  if (act === 'toggle') { state.expanded.has(pid) ? state.expanded.delete(pid) : state.expanded.add(pid); renderPend(); }
+  else if (act === 'dev') { setTab('registrar'); $('#dev-planilla').value = D.pl[pid].planilla; $('#dev-nums').value = ''; renderRegistrar(); $('#dev-nums').focus(); }
+  else if (act === 'devall') { const c = devCheck(); if (c.st === 'ok') { $('#dev-nums').value = compress(c.p.pend); renderRegistrar(); } }
+  else if (act === 'perdida') dlgPerdida(pid);
+  else if (act === 'anular') dlgAnular(pid);
+  else if (act === 'crate') dlgCrate(+t.dataset.n);
+  else if (act === 'close') dlg.close();
+});
+$('#pend-f').addEventListener('input', e => { state.pendFilter = e.target.value; renderPend(); });
+$('#pend-q').addEventListener('input', e => { state.pendQ = e.target.value; renderPend(); });
+$('#inv-q').addEventListener('input', e => { state.invQ = e.target.value; renderInv(); });
+
+/* ---------- almacenamiento local, respaldo y restauración ---------- */
+const KEY = 'kardex-canastillas-v1';
+function loadStore() {
+  const s = JSON.parse(localStorage.getItem(KEY) || 'null');
+  if (s && typeof s === 'object') return {cfg: s.cfg || null, planillas: s.planillas || {}, conteos: s.conteos || [], meta: s.meta || {}};
+  return {cfg: null, planillas: {}, conteos: [], meta: {}};
+}
+function saveStore() {
+  localStorage.setItem(KEY, JSON.stringify({v: 1, cfg: state.cfg, planillas: state.planillas, conteos: state.conteosAll, meta: state.meta}));
+}
+const tsDay = ts => { const d = new Date(ts); return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; };
+function backupStatus() {
+  let le = 0;
+  for (const p of Object.values(state.planillas)) for (const e of (p.eventos || [])) if (e.ts > le) le = e.ts;
+  for (const c of state.conteosAll) if (c.ts > le) le = c.ts;
+  const last = state.meta.lastBackup || 0;
+  return {last, day: last ? tsDay(last) : '', unsaved: le > last};
+}
+function markBackup() { state.meta.lastBackup = Date.now(); try { saveStore(); } catch (e) {} renderAll(); }
+
+$('#btn-backup').addEventListener('click', async () => {
+  const text = JSON.stringify({app: 'kardex-canastillas', v: 1, exportado: Date.now(), cfg: state.cfg, planillas: state.planillas, conteos: state.conteosAll});
+  const name = `kardex-canastillas-${todayStr()}.json`;
+  try {
+    const file = new File([text], name, {type: 'application/json'});
+    if (navigator.canShare && navigator.canShare({files: [file]})) await navigator.share({files: [file], title: 'Respaldo kardex de canastillas'});
+    else downloadBlob(name, text, 'application/json');
+    markBackup(); toast('Respaldo generado. Confirma que quedó enviado o guardado.');
+  } catch (e) {
+    if (e && e.name === 'AbortError') return;
+    try { downloadBlob(name, text, 'application/json'); markBackup(); toast('Respaldo descargado en la carpeta de descargas.'); }
+    catch (e2) { toast('No se pudo generar el respaldo.', true); }
+  }
+});
+
+function mergeData(data) {
+  const pl = JSON.parse(JSON.stringify(state.planillas));
+  let nuevos = 0, planNuevas = 0, cfgNueva = false, contNuevos = 0;
+  for (const [pid, p] of Object.entries(data.planillas || {})) {
+    if (!p || !Array.isArray(p.eventos)) continue;
+    let t = pl[pid];
+    if (!t) { t = pl[pid] = {planilla: String(p.planilla || pid), ruta: String(p.ruta || ''), conductor: String(p.conductor || ''), fecha: String(p.fecha || ''), creado: +p.creado || 0, eventos: []}; planNuevas++; }
+    const ids = new Set(t.eventos.map(e => e.id));
+    for (const e of p.eventos) {
+      if (!e || typeof e.id !== 'string' || ids.has(e.id) || !TIPO[e.tipo] || !Number.isFinite(e.ts) || typeof e.fecha !== 'string') continue;
+      t.eventos.push({id: e.id, tipo: e.tipo, fecha: e.fecha, ts: e.ts, nums: Array.isArray(e.nums) ? e.nums.filter(Number.isInteger) : [], por: e.por ? String(e.por) : null, obs: e.obs ? String(e.obs) : ''});
+      ids.add(e.id); nuevos++;
+    }
+    t.eventos.sort((a, b) => a.ts - b.ts);
+  }
+  let cfg = state.cfg;
+  const dc = data.cfg;
+  if (dc && typeof dc.rango === 'string' && (!cfg || (dc.ts || 0) > (cfg.ts || 0))) {
+    if (!cfg || cfg.rango !== dc.rango || cfg.diasAlerta !== dc.diasAlerta) cfgNueva = true;
+    cfg = {rango: dc.rango, diasAlerta: +dc.diasAlerta || 2, ts: dc.ts || 0, por: dc.por || null};
+  }
+  const have = new Set(state.conteosAll.map(c => c.ts + '|' + c.contado));
+  const conteos = state.conteosAll.slice();
+  for (const c of (data.conteos || [])) {
+    if (!c || !Number.isFinite(c.ts) || !Number.isFinite(c.contado) || have.has(c.ts + '|' + c.contado)) continue;
+    conteos.push({fecha: String(c.fecha || ''), ts: c.ts, esperado: +c.esperado || 0, contado: c.contado, nota: c.nota ? String(c.nota) : '', por: c.por ? String(c.por) : null});
+    contNuevos++;
+  }
+  return {pl, cfg, conteos, nuevos, planNuevas, cfgNueva, contNuevos};
+}
+$('#btn-restore').addEventListener('click', () => $('#file-restore').click());
+$('#file-restore').addEventListener('change', async e => {
+  const f = e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  let data;
+  try { data = JSON.parse(await f.text()); } catch (err) { toast('Ese archivo no es un respaldo válido.', true); return; }
+  if (!data || data.app !== 'kardex-canastillas' || typeof data.planillas !== 'object') { toast('Ese archivo no es un respaldo del kardex de canastillas.', true); return; }
+  const m = mergeData(data);
+  openDlg(`<h2>Restaurar respaldo</h2>
+    <p>Archivo: <b>${esc(f.name)}</b></p>
+    <p style="margin-top:8px">Se agregarán <b>${m.nuevos}</b> movimientos nuevos en ${m.planNuevas} planillas nuevas${m.contNuevos ? `, y ${m.contNuevos} conteos` : ''}${m.cfgNueva ? '. También se actualizará el inventario de canastillas' : ''}.</p>
+    <p class="note-sm">No se borra nada de lo que ya tienes: solo se suman los movimientos que falten.</p>
+    <div class="actions"><button class="btn primary" type="submit"${m.nuevos || m.cfgNueva || m.contNuevos ? '' : ' disabled'}>Restaurar</button><button class="btn" type="button" data-act="close">Cancelar</button></div>`,
+    async () => {
+      const prev = {planillas: state.planillas, cfg: state.cfg, conteosAll: state.conteosAll};
+      state.planillas = m.pl; state.cfg = m.cfg; state.conteosAll = m.conteos;
+      try { saveStore(); toast(`Respaldo restaurado: ${m.nuevos} movimientos agregados.`); }
+      catch (err) { Object.assign(state, prev); throw err; }
+      refresh();
+    });
+});
+
+$('#operador').addEventListener('input', e => {
+  state.operador = e.target.value; state.meta.operador = e.target.value;
+  try { saveStore(); } catch (err) {}
+  renderAll();
+});
+
+/* ---------- arranque ---------- */
+(function init() {
+  $('#ent-fecha').value = todayStr(); $('#dev-fecha').value = todayStr();
+  try {
+    const st = loadStore();
+    state.cfg = st.cfg; state.planillas = st.planillas; state.conteosAll = st.conteos; state.meta = st.meta;
+    saveStore();
+    state.ok = true;
+  } catch (e) { state.ok = false; }
+  state.cfgReady = true;
+  state.operador = state.meta.operador || '';
+  $('#operador').value = state.operador;
+  if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {});
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) navigator.serviceWorker.register('sw.js').catch(() => {});
+  refresh();
+})();
+</script>
+</body>
+</html>
